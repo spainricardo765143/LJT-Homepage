@@ -33,6 +33,9 @@ atom_feed:
   hide: true
 teaser:
 og_image:
+og_description: "First-year PhD candidate at HKUST NLP Group. Research in natural language processing and machine learning."
+twitter:
+  username: "junteng88716710"
 
 social:
   type: "Person"
