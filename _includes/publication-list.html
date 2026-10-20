@@ -1,0 +1,12 @@
+{% assign publications = site.publications | sort: 'order' %}
+{% for publication in publications %}
+<div class="list__item">
+  <article class="archive__item">
+    <h3 class="archive__item-title">
+      <a href="{{ publication.url | relative_url }}" rel="permalink">{{ publication.title | escape }}</a>
+    </h3>
+    <p>{{ publication.authors }}</p>
+    <p><em>{{ publication.venue }}</em>, {{ publication.year }}.</p>
+  </article>
+</div>
+{% endfor %}
