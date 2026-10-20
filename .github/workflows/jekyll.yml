@@ -1,4 +1,4 @@
-name: Deploy personal website to GitHub Pages
+name: Build and publish personal website
 
 on:
   push:
@@ -17,6 +17,8 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+    outputs:
+      pages_ready: ${{ steps.pages.outcome == 'success' }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -27,17 +29,24 @@ jobs:
           bundler-cache: true
       - name: Configure GitHub Pages
         id: pages
+        continue-on-error: true
         uses: actions/configure-pages@v5
         with:
           enablement: true
       - name: Build with Jekyll
-        run: bundle exec jekyll build --strict_front_matter --baseurl "${{ steps.pages.outputs.base_path }}"
+        run: bundle exec jekyll build --strict_front_matter --baseurl "${{ steps.pages.outputs.base_path || '/LJT-Homepage' }}"
         env:
           JEKYLL_ENV: production
+      - name: Validate homepage and publications
+        run: bundle exec ruby scripts/validate-site.rb
       - name: Upload GitHub Pages artifact
         uses: actions/upload-pages-artifact@v3
+      - name: Report Pages activation requirement
+        if: steps.pages.outcome != 'success'
+        run: echo "::notice title=GitHub Pages setup required::The website built successfully. A repository administrator must enable Pages with GitHub Actions as the source before deployment can run."
 
   deploy:
+    if: needs.build.outputs.pages_ready == 'true'
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
